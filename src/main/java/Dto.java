@@ -28,7 +28,7 @@ import java.util.Set;
 public class Dto {
 	
 	public static void listAllTables(DynamoDbClient ddb){
-
+		
 	    boolean moreTables = true;
 	    String lastName = null;
 
