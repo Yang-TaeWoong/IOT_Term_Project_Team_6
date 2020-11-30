@@ -14,6 +14,6 @@ public class main {
 		dto.listAllTables(ddb);
 		String key = "";
 		String value = "";
-		dto.getDynamoDBItem(ddb, tableName, key,value);
+		dto.getDynamoDBItem(ddb, tableName, key,value); 
 	}
 }
