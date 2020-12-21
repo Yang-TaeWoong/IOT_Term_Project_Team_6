@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.simple.JSONArray;
+
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
@@ -38,14 +40,7 @@ public class Status extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		Dto dto = new Dto();
-		Region region = Region.AP_NORTHEAST_2;
-		DynamoDbClient ddb = DynamoDbClient.builder()
-                .region(region)
-                .build();
-		dto.describeDymamoDBTable(ddb, "DBDB_2");
-		System.out.println("status servlet in");
-		response.getWriter().append("Served at: ").append(request.getContextPath());
+		
 	}
 
 	/**
@@ -53,6 +48,18 @@ public class Status extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		Dto dto = new Dto();
+		String tableName = "DBDB_2";
+		Region region = Region.AP_NORTHEAST_2;
+		DynamoDbClient ddb = DynamoDbClient.builder()
+                .region(region)
+                .build();
+		dto.describeDymamoDBTable(ddb, "DBDB_2");
+		String key = "";
+		String value = "";
+		JSONArray data = dto.getJsonDynamoDBItem(ddb, tableName, key,value); 
+		System.out.println(data);
+		response.getWriter().append("Served at: ").append(request.getContextPath());
 		doGet(request, response);
 	}
 }

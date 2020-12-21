@@ -1,5 +1,10 @@
+import java.util.Map;
+
+import org.json.simple.JSONArray;
+
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 public class main {
 	public static void main(String[] args) {
@@ -10,10 +15,11 @@ public class main {
 		DynamoDbClient ddb = DynamoDbClient.builder()
                 .region(region)
                 .build();
-		dto.describeDymamoDBTable(ddb, "DBDB_2");
+		dto.describeDymamoDBTable(ddb, tableName);
 		dto.listAllTables(ddb);
 		String key = "";
 		String value = "";
-		dto.getDynamoDBItem(ddb, tableName, key,value); 
+		JSONArray data = dto.getJsonDynamoDBItem(ddb, tableName, key,value); 
+		// return jsonarray
 	}
 }

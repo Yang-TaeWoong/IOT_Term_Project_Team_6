@@ -6,6 +6,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeDefinition;
 import software.amazon.awssdk.services.dynamodb.model.DescribeTableRequest;
 import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughputDescription;
+import software.amazon.awssdk.services.dynamodb.model.ReturnConsumedCapacity;
 import software.amazon.awssdk.services.dynamodb.model.TableDescription;
 import java.util.List;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -19,7 +20,8 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
-
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +30,6 @@ import java.util.Set;
 public class Dto {
 	
 	public static void listAllTables(DynamoDbClient ddb){
-		
 	    boolean moreTables = true;
 	    String lastName = null;
 
@@ -65,7 +66,6 @@ public class Dto {
 	        }
 	    }
 	}
-
 	public static void describeDymamoDBTable(DynamoDbClient ddb,String tableName ) {
 
 	    DescribeTableRequest request = DescribeTableRequest.builder()
@@ -109,10 +109,10 @@ public class Dto {
 	        System.exit(1);
 	    }
 	}
-	public static void getDynamoDBItem(DynamoDbClient ddb,String tableName,String key,String keyVal ) {
-
-	    HashMap<String,AttributeValue> keyToGet = new HashMap<String,AttributeValue>();
-
+	public static JSONArray getJsonDynamoDBItem(DynamoDbClient ddb,String tableName,String key,String keyVal ) {
+		JSONArray jsonArray = new JSONArray();
+		JSONObject obJsonArray = new JSONObject();
+		HashMap<String,AttributeValue> keyToGet = new HashMap<String,AttributeValue>();
 	    keyToGet.put(key, AttributeValue.builder()
 	            .s(keyVal).build());
 
@@ -122,12 +122,12 @@ public class Dto {
 	            .build();
 
 	    try {
-	        Map<String,AttributeValue> returnedItem = ddb.getItem(request).item();
-
+	    	Map<String,AttributeValue> returnedItem = ddb.getItem(request).item();
+	        
 	        if (returnedItem != null) {
 	            Set<String> keys = returnedItem.keySet();
 	            System.out.println("Amazon DynamoDB table attributes: \n");
-
+	            
 	            for (String key1 : keys) {
 	                System.out.format("%s: %s\n", key1, returnedItem.get(key1).toString());
 	            }
@@ -138,24 +138,26 @@ public class Dto {
 	        System.err.println(e.getMessage());
 	        System.exit(1);
 	    }
+		return jsonArray;
 	}
-	public static void scan( DynamoDbEnhancedClient enhancedClient) {
-
+	public static JSONArray JsonScanedString( DynamoDbEnhancedClient enhancedClient,String tableName) {
+		JSONArray jsonArray = null;
+		JSONObject jsonObject = null;
 	    try{
 	        // Create a DynamoDbTable object
-	        DynamoDbTable<Sensor> custTable = enhancedClient.table("DBDB_2", TableSchema.fromBean(Sensor.class));
+	        DynamoDbTable<Sensor> custTable = enhancedClient.table(tableName, TableSchema.fromBean(Sensor.class));
 	        Iterator<Sensor> results = custTable.scan().items().iterator();
 	        while (results.hasNext()) {
-
-	        	Sensor rec = results.next();
-	            System.out.println("The record id is "+rec.getLumi());
+	        	Sensor sensorData = results.next();
+	        	jsonObject.put("id", sensorData.getId());
+	            System.out.println("The record id is "+sensorData.getLumi());
 	        }
-
 	    } catch (DynamoDbException e) {
 	        System.err.println(e.getMessage());
 	        System.exit(1);
 	    }
 	    System.out.println("Done");
+	    System.out.print(jsonObject);
+	    return jsonArray;
 	}
-
 }
