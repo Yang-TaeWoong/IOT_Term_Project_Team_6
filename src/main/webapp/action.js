@@ -1,4 +1,5 @@
-var marker = null;
+var markers = [];
+var map= null;
 var marker_positions = [
 	{
 		content: '<div>1</div>',
@@ -21,6 +22,8 @@ var marker_positions = [
 		latlng: new kakao.maps.LatLng(33.650879, 126.569940)
 	}
 ];
+
+
 function info_window_content(device_name) {
 	var end_point_info = '<div class="overlaybox">' +
 		'    <div class="boxtitle">data</div>' +
@@ -76,9 +79,35 @@ function get_fire_score() {
 	var xmlDoc = xmlhttp.responseXML;
 	console.log(xmlDoc);
 }
+// 마커를 생성하고 지도위에 표시하는 함수입니다
+function addMarker(index) {
+    
+    // 마커를 생성합니다
+    var marker = new kakao.maps.Marker({
+        position: marker_positions[index]
+    });
 
-function change_color(index){
-	alert(++index+"st fire!");
+    // 마커가 지도 위에 표시되도록 설정합니다
+    marker.setMap(map);
+    
+    // 생성된 마커를 배열에 추가합니다
+    markers.push(marker);
+}
+function change_color(index) {
+	alert(++index + "st fire!");
+//	addMarker(index);
+}
+
+function setMarkers(map,index) {
+	markers[index].setMap(map);
+}
+
+/*function showMarkers(index) {
+	setMarkers(map,index)
+}*/
+
+function hideMarkers(index) {
+	setMarkers(null,index);
 }
 
 function call_ajax(url) {
@@ -86,14 +115,39 @@ function call_ajax(url) {
 	xmlhttp.addEventListener("load", function() {
 		var jsonobj = JSON.parse(this.responseText);
 		console.log(jsonobj);
-		for(var i=0;i<jsonobj.length;i++){
-			if(jsonobj[i]["temp"]>=40 && jsonobj[i]["humid"]>=10){
+		for (var i = 0; i < jsonobj.length; i++) {
+			if (jsonobj[i]["temp"] >= 40 && jsonobj[i]["humid"] >= 5) {
+				make_marker(i);
 				change_color(i);
 			}
+			else
+				hideMarkers(i);
 		}
 	})
 	xmlhttp.open("POST", url);
 	xmlhttp.send();
+}
+
+
+function make_marker(index) {
+		// TODO : 상태를 읽어와서 적어야함.
+		var marker = new kakao.maps.Marker({
+			map: map,
+			position: marker_positions[index].latlng
+		});
+		var infowindow = new kakao.maps.InfoWindow({
+			content: info_window_content("data")
+		});
+		// 마커가 지도 위에 표시되도록 설정합니다
+		marker.setMap(map);
+
+		// 생성된 마커를 배열에 추가합니다
+		markers.push(marker);
+		kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow));
+		kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow));
+}
+function delete_marker(map) {
+
 }
 
 function load_map() {
@@ -103,21 +157,8 @@ function load_map() {
 			level: 3 // 지도의 확대 레벨
 		};
 
-	var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+	map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
 	map.addOverlayMapTypeId(kakao.maps.MapTypeId.TERRAIN);
-
-	marker_positions.forEach(function(position) {
-		// TODO : 상태를 읽어와서 적어야함.
-		marker = new kakao.maps.Marker({
-			map: map,
-			position: position.latlng
-		});
-		var infowindow = new kakao.maps.InfoWindow({
-			content: info_window_content("data")
-		});
-		kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow));
-		kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow));
-	})
 
 	var mapTypeControl = new kakao.maps.MapTypeControl();
 	map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
@@ -141,9 +182,9 @@ function makeOutListener(infowindow) {
 	};
 }
 window.addEventListener('load', (event) => {
-  call_ajax("status");
-  load_map();
-  
+	call_ajax("status");
+	load_map();
+
 });
 
 var map_start_btn = document.querySelector("#map_btn");
