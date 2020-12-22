@@ -1,15 +1,24 @@
+var marker = null;
 var marker_positions = [
 	{
-		content: '<div>카카오</div>',
+		content: '<div>1</div>',
 		latlng: new kakao.maps.LatLng(33.450701, 126.570677)
 	},
 	{
-		content: '<div>생태연못</div>',
+		content: '<div>2</div>',
 		latlng: new kakao.maps.LatLng(33.450936, 126.569477)
 	},
 	{
-		content: '<div>텃밭</div>',
+		content: '<div>3</div>',
 		latlng: new kakao.maps.LatLng(33.450879, 126.569940)
+	},
+	{
+		content: '<div>4</div>',
+		latlng: new kakao.maps.LatLng(33.550879, 126.569940)
+	},
+	{
+		content: '<div>5</div>',
+		latlng: new kakao.maps.LatLng(33.650879, 126.569940)
 	}
 ];
 function info_window_content(device_name) {
@@ -17,14 +26,26 @@ function info_window_content(device_name) {
 		'    <div class="boxtitle">data</div>' +
 		'    <div class="first">' +
 		'        <div class="triangle text">degree</div>' +
-		'        <div class="movietitle text">' + '드래곤 길들이기2' + '</div>' +
+		'        <div class="movietitle text">' + + '</div>' +
 		'    </div>' +
 		'    <ul>' +
 		'        <li class="up">' +
 		'            <span class="number">2</span>' +
-		'            <span class="title">' + device_name + '</span>' +
+		'            <span class="device name">' + device_name + '</span>' +
 		'            <span class="arrow up"></span>' +
 		'            <span class="count">2</span>' +
+		'        </li>' +
+		'        <li>' +
+		'            <span class="number">3</span>' +
+		'            <span class="title">' + device_name + '</span>' +
+		'            <span class="arrow up"></span>' +
+		'            <span class="count">6</span>' +
+		'        </li>' +
+		'        <li>' +
+		'            <span class="number">3</span>' +
+		'            <span class="title">' + device_name + '</span>' +
+		'            <span class="arrow up"></span>' +
+		'            <span class="count">6</span>' +
 		'        </li>' +
 		'        <li>' +
 		'            <span class="number">3</span>' +
@@ -42,19 +63,37 @@ function info_window_content(device_name) {
 		'</div>';
 	return end_point_info;
 }
+function get_fire_score() {
+	var url = "http://know.nifos.go.kr/openapi/forestPoint/forestPointListSearch.do?localArea=&gubun=jeongug&keyValue=FcRDRyBL8ycJbMuJAjY3OI860dhBEJ3t6yKg2WoS1w0%3D&version=1.1&excludeForecast=1";
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+			console.log(xmlhttp.responseText);
+		}
+	}
+	xmlhttp.open("GET", url, true);
+	xmlhttp.send();
+	var xmlDoc = xmlhttp.responseXML;
+	console.log(xmlDoc);
+}
 
-function call_ajax(url)
-{
-	 var xmlhttp;
-    // compatible with IE7+, Firefox, Chrome, Opera, Safari
-    xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function(){
-        if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
-            callback(xmlhttp.responseText);
-        }
-    }
-    xmlhttp.open("POST", url, true);
-    xmlhttp.send();
+function change_color(index){
+	alert(++index+"st fire!");
+}
+
+function call_ajax(url) {
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.addEventListener("load", function() {
+		var jsonobj = JSON.parse(this.responseText);
+		console.log(jsonobj);
+		for(var i=0;i<jsonobj.length;i++){
+			if(jsonobj[i]["temp"]>=40 && jsonobj[i]["humid"]>=10){
+				change_color(i);
+			}
+		}
+	})
+	xmlhttp.open("POST", url);
+	xmlhttp.send();
 }
 
 function load_map() {
@@ -69,7 +108,7 @@ function load_map() {
 
 	marker_positions.forEach(function(position) {
 		// TODO : 상태를 읽어와서 적어야함.
-		var marker = new kakao.maps.Marker({
+		marker = new kakao.maps.Marker({
 			map: map,
 			position: position.latlng
 		});
@@ -79,9 +118,18 @@ function load_map() {
 		kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow));
 		kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow));
 	})
+
+	var mapTypeControl = new kakao.maps.MapTypeControl();
+	map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
+	var zoomControl = new kakao.maps.ZoomControl();
+	map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
 }
+
+
 function makeOverListener(map, marker, infowindow) {
-	call_ajax('/status');
+	//call_ajax('status',marker,infowindow);
+
+	//get_fire_score();
 	return function() {
 		infowindow.open(map, marker);
 	}
@@ -92,16 +140,18 @@ function makeOutListener(infowindow) {
 		infowindow.close();
 	};
 }
+window.addEventListener('load', (event) => {
+  call_ajax("status");
+  load_map();
+  
+});
 
-window.addEventListener("load", load_map);
 var map_start_btn = document.querySelector("#map_btn");
 map_start_btn.addEventListener("click", load_map);
 var camera_start_btn = document.querySelector("#camera_btn");
 camera_start_btn.addEventListener("click", function() {
-	document.querySelector("#contents").innerHTML = "hi";
-	//TODO : send a query to specific url
+	document.querySelector("#contents").innerHTML = "<iframe width='100%' height='100%' src='http://34.64.140.192/client' allowfullscreen='true' webkitallowfullscreen='true' mozallowfullscreen='true'></iframe>"
 });
 
+
 // "http://know.nifos.go.kr/openapi/forestPoint/forestPointListSearch.do?localArea=&gubun=jeongug&keyValue=FcRDRyBL8ycJbMuJAjY3OI860dhBEJ3t6yKg2WoS1w0%3D&version=1.1&excludeForecast=1"
-
-

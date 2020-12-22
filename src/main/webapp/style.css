@@ -16,6 +16,12 @@
   transition: 0.3s;
 }
 
+body,
+html {
+  font-size: 10px;
+  height: 1000px;
+}
+
 /* Change background color of buttons on hover */
 .tab button:hover {
   background-color: #ddd;

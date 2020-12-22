@@ -1,6 +1,10 @@
 
-
+import java.awt.print.PrinterAbortException;
+import java.io.Console;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -8,6 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -27,39 +35,19 @@ public class Status extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
 
-	/**
-	 * @see HttpServlet#service(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		Dto dto = new Dto();
-		String tableName = "DBDB_2";
-		Region region = Region.AP_NORTHEAST_2;
+		String tableName = "IOT_DB2";
+		Region region = Region.US_EAST_2;
 		DynamoDbClient ddb = DynamoDbClient.builder()
                 .region(region)
                 .build();
-		dto.describeDymamoDBTable(ddb, "DBDB_2");
-		String key = "";
-		String value = "";
-		JSONArray data = dto.getJsonDynamoDBItem(ddb, tableName, key,value); 
-		System.out.println(data);
-		response.getWriter().append("Served at: ").append(request.getContextPath());
-		doGet(request, response);
+		String key = "number";
+		JsonArray jsonArray = new JsonArray();
+		String[] valuesArrayList = {"1","2","3"};
+		for(String value:valuesArrayList) {
+			JsonArray data = Dto.getJsonDynamoDBItem(ddb, tableName, key, value); 
+			jsonArray.addAll(data);
+		}
+		response.getWriter().write(jsonArray.toString());
 	}
 }

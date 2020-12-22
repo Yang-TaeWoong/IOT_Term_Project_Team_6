@@ -14,7 +14,7 @@ public class S4 {
 
     public static void main(String[] args) throws IOException {
 
-        Region region = Region.AP_NORTHEAST_2;
+        Region region = Region.US_EAST_2;
         S3Client s3 = S3Client.builder().region(region).build();
 
         String bucket = "bucket" + System.currentTimeMillis();

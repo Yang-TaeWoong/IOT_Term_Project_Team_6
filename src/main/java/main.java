@@ -1,25 +1,27 @@
-import java.util.Map;
+import java.io.PrintWriter;
 
 import org.json.simple.JSONArray;
 
+import com.google.gson.JsonArray;
+
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 public class main {
-	public static void main(String[] args) {
-		Dto dto = new Dto();
-		String tableName = "DBDB_2";
-
-		Region region = Region.AP_NORTHEAST_2;
+	public static void main(String[] args){
+		
+		String tableName = "IOT_DB2";
+		Region region = Region.US_EAST_2;
 		DynamoDbClient ddb = DynamoDbClient.builder()
                 .region(region)
                 .build();
-		dto.describeDymamoDBTable(ddb, tableName);
-		dto.listAllTables(ddb);
-		String key = "";
-		String value = "";
-		JSONArray data = dto.getJsonDynamoDBItem(ddb, tableName, key,value); 
-		// return jsonarray
+		String key = "number";
+		JsonArray jsonArray = new JsonArray();
+		String[] valuesArrayList = {"1","2","3"};
+		for(String value:valuesArrayList) {
+			JsonArray data = Dto.getJsonDynamoDBItem(ddb, tableName, key, value); 
+			jsonArray.addAll(data);
+		}
+		System.out.print(jsonArray);
 	}
 }
