@@ -67,7 +67,7 @@ function info_window_content(device_name) {
 	return end_point_info;
 }
 function get_fire_score() {
-	var url = "http://know.nifos.go.kr/openapi/forestPoint/forestPointListSearch.do?localArea=&gubun=jeongug&keyValue=FcRDRyBL8ycJbMuJAjY3OI860dhBEJ3t6yKg2WoS1w0%3D&version=1.1&excludeForecast=1";
+	var url = "http://know.nifos.go.kr/openapi/forestPoint/forestPointListSearch.do?localArea=&gubun=jeongug&keyValue=data0%3D&version=1.1&excludeForecast=1";
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
@@ -193,6 +193,3 @@ var camera_start_btn = document.querySelector("#camera_btn");
 camera_start_btn.addEventListener("click", function() {
 	document.querySelector("#contents").innerHTML = "<iframe width='100%' height='100%' src='http://34.64.140.192/client' allowfullscreen='true' webkitallowfullscreen='true' mozallowfullscreen='true'></iframe>"
 });
-
-
-// "http://know.nifos.go.kr/openapi/forestPoint/forestPointListSearch.do?localArea=&gubun=jeongug&keyValue=FcRDRyBL8ycJbMuJAjY3OI860dhBEJ3t6yKg2WoS1w0%3D&version=1.1&excludeForecast=1"
